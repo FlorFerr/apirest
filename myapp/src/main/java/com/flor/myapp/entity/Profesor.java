@@ -1,13 +1,22 @@
 package com.flor.myapp.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -16,8 +25,6 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name="Teachers")
 public class Profesor implements Serializable{
-	
-	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -37,6 +44,14 @@ public class Profesor implements Serializable{
 	@Column(name="create_at")
 	@Temporal(TemporalType.DATE)
 	private Date createAt;
+	
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name="profesorId", referencedColumnName="id")
+	private List<Curso> cursos = new ArrayList<>();
+	
+	@ManyToMany(cascade= CascadeType.ALL)
+	@JoinTable(name="profesores_lenguajes", joinColumns = @JoinColumn(name="profesor_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name="lenguaje_id", referencedColumnName="id"))
+	private Set<Lenguaje> lenguajes = new HashSet<>();
 	
 	@PrePersist
 	public void prePersist() {
@@ -101,10 +116,28 @@ public class Profesor implements Serializable{
 		this.createAt = createAt;
 	}
 
+	public List<Curso> getCursos() {
+		return cursos;
+	}
+
+	public void setCursos(List<Curso> cursos) {
+		this.cursos = cursos;
+	}
+
+	public Set<Lenguaje> getLenguajes() {
+		return lenguajes;
+	}
+
+	public void setLenguajes(Set<Lenguaje> lenguajes) {
+		this.lenguajes = lenguajes;
+	}
+
 	@Override
 	public String toString() {
 		return "Profesor [id=" + id + ", name=" + name + ", lastName=" + lastName + ", email=" + email + ", password="
 				+ password + ", photo=" + photo + ", createAt=" + createAt + "]";
 	}
+	
+	private static final long serialVersionUID = 1L;
 	
 }

@@ -1,10 +1,12 @@
 package com.flor.myapp.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,9 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.flor.myapp.entity.Profesor;
+import com.flor.myapp.mapper.Mapper;
+import com.flor.myapp.model.MProfesor;
 import com.flor.myapp.service.ProfesorService;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api")
 public class ProfesorController {
 	
@@ -25,8 +30,18 @@ public class ProfesorController {
 	private ProfesorService profesorService;
 	
 	@GetMapping("/profesores")
-	public List<Profesor> getAll(){
-		return profesorService.findAll();
+	public ResponseEntity<?> getAll(){
+		List<Profesor> profesores = new ArrayList<>();
+				
+		profesores = profesorService.findAll();
+		
+		if(profesores.isEmpty()) {
+			return new ResponseEntity<>("No se encontraron usuarios", HttpStatus.NOT_FOUND);
+		}else {
+			List<MProfesor> mProfesores = new ArrayList<>();
+			mProfesores = Mapper.mapProfesores(profesores);
+			return new ResponseEntity<>(mProfesores, HttpStatus.OK);
+		}
 	}
 	
 	@PostMapping("/profesores")
@@ -57,7 +72,7 @@ public class ProfesorController {
 	}
 	
 	@DeleteMapping("/profesores/{id}")
-	public ResponseEntity<?> deleteProfesor(@PathVariable int id){
+	public ResponseEntity<String> deleteProfesor(@PathVariable int id){
 		
 		Profesor theProfesor = profesorService.findByIdSql(id);
 		
@@ -71,7 +86,7 @@ public class ProfesorController {
 	}
 	
 	@DeleteMapping("/profesores/delete")
-	public ResponseEntity<?> deleteAll(){
+	public ResponseEntity<String> deleteAll(){
 		
 		List<Profesor> profesores = profesorService.findAll();
 		
@@ -89,9 +104,11 @@ public class ProfesorController {
 	public ResponseEntity<?> loginProfesor(@RequestBody Profesor profesor) {
 			Profesor theProfesor = profesorService.checkProfesorLogin(profesor);
 			if(theProfesor != null) {
-				return new ResponseEntity<>("Ok", HttpStatus.OK);
+		        MProfesor mProfesor = Mapper.mapProfesor(theProfesor);
+
+				return new ResponseEntity<>(mProfesor, HttpStatus.OK);
 			}else {
-				return new ResponseEntity<>("Usuario o contraseña incorrectas", HttpStatus.CONFLICT);
+				return new ResponseEntity<>("Usuario o contraseña incorrectos", HttpStatus.CONFLICT);
 			}	
 	}
 	

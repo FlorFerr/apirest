@@ -1,7 +1,6 @@
 package com.flor.myapp.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.flor.myapp.entity.Profesor;
 
